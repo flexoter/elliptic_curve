@@ -1,4 +1,3 @@
-from simplicityTests.simplicityTests import ferma_test
 from Elliptic.elliptic import is_curve_exist
 
 
