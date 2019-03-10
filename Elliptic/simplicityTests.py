@@ -7,7 +7,7 @@
 from random import randint, seed
 from numpy import array
 
-# Compound numbers
+# Compound numbers that hard to identify correctly by probabilistic algorythms 
 CARMICHAEL_NUMBERS = list([561, 1105, 1729, 2465, 2821, 6601, 8911, 10585,
                           15841, 29341, 41041, 46657, 52633, 62745,
                           63973, 75361])
@@ -34,6 +34,28 @@ def gcd(a_value, b_value):
     return a_value
 
 
+# Check whether given number is deduction or not
+def euler_criterion(a_value, field):
+
+    """
+    Function finds Euler criterion which determine whether given number is deduction on given field.
+    Possible values: True, False, ValueError
+
+    :param int a_value: given number to find deduction
+    :param int field: simple value which is usually field
+
+    """
+
+    criterion = (a_value ** ((field - 1) // 2)) % field
+
+    if criterion == 1:
+        return True
+    elif criterion - field == -1:
+            return False
+    else:
+        return ValueError, "Something went wrong...\nGiven number is defenitely not deduction"
+
+
 # Return s_value and t_value if number is 
 # representable in (2**s_value)*t_value format
 def find_representation(value):
@@ -47,48 +69,14 @@ def find_representation(value):
 
     s_value = int()
 
+    if value % 2 != 0:
+        value -= 1
+
     while value % 2 == 0:
         value /= 2
         s_value += 1
 
     return s_value, int(value)
-
-
-# Return stmbol of Yakoby
-def yakoby_symbol(a_value, n_value):
-
-    """
-    Function finds a symbol of Yakoby of a pair of given numbers.
-    Possible values: int(1), int(0), int(-1)
-
-    :param int a_value: numerator of symbol of Yakoby
-    :param int n_value: denominator of symbol of Yakoby
-
-    """
-
-    # Preventing of devide by zero
-    if a_value == 0 or n_value == 0:
-        return 0
-
-    if gcd(a_value, n_value) != 1:
-        return ValueError, "Given number are not mutually simple"
-
-    if a_value > n_value:
-        if a_value % n_value == 1:
-            return 1
-        else:
-            return yakoby_symbol(a_value % n_value, n_value)
-    elif n_value > a_value:
-        if n_value % 4 == 1 or a_value % 4 == 1:
-            if n_value % a_value == 1:
-                return 1
-            else:
-                return yakoby_symbol(n_value % a_value, a_value)
-        elif n_value % 4 != 1 and a_value % 4 != 1:
-            if n_value % a_value == 1:
-                return -1
-            else:
-                return -yakoby_symbol(n_value % a_value, a_value)
 
 
 # Perform a Ferma simplicity test
@@ -184,7 +172,7 @@ def nightingale_strassen_test(simple_value, rounds):
         devinder = array([random_simple ** ((simple_value - 1) // 2)],
                          dtype='object')
         remaider = devinder % array([simple_value])
-        yakoby_symb = yakoby_symbol(devinder, simple_value)
+        yakoby_symb = int(euler_criterion(devinder, simple_value))
         if remaider != yakoby_symb:
             return False
         else:
@@ -256,3 +244,52 @@ def miller_rabin_test(simple_value, rounds):
                 break
 
     return simplicity_witness
+
+
+def find_quadratic_noncall(field):
+
+    for deducation in range(2, field):
+        if euler_criterion(deducation, field) is False:
+            return deducation
+
+
+def find_minimal_deduction(t_value, m_value, field):
+
+    for dedon in range(m_value):
+        if ((t_value ** (2 ** dedon))) % field == 1:
+            return dedon
+
+
+def root_computation(value, field):
+
+    r_value = int()
+    min_denon = int()
+
+    if euler_criterion(value, field) is not True:
+        return ValueError
+
+    s_value, q_value = find_representation(field)
+
+    if s_value == 1:
+        r_value = value ** ((field - 1) // 4) % field
+        return tuple([r_value, -r_value])
+
+    z_value = find_quadratic_noncall(field)
+    c_value = (z_value ** q_value) % field
+    r_value = value ** ((q_value + 1) // 2) % field
+    t_value = (value ** q_value) % field
+    m_value = s_value
+
+    while t_value != 1:
+        if m_value < 3:
+            min_denon = 1
+        else:
+            min_denon = find_minimal_deduction(t_value, m_value, field)
+        b_value = (c_value ** (2 ** (m_value - min_denon - 1))) % field
+        r_value = (r_value * b_value) % field
+        print(r_value)
+        t_value = (t_value * b_value ** 2) % field
+        c_value = (b_value ** 2) % field
+        m_value = min_denon
+
+    return tuple([r_value, -r_value % field])

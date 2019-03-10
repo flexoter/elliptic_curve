@@ -4,9 +4,12 @@
 
 """
 
+from collections import defaultdict
+import numpy as np
+import matplotlib.pyplot as plt
 from random import randint, seed
 from numpy import array
-from simplicityTests import ferma_test
+from simplicityTests import ferma_test, euler_criterion, root_computation, find_representation, find_quadratic_noncall
 
 
 # Function finds discriminant of a curve function with given parameters
@@ -55,5 +58,32 @@ def is_curve_exist(a_value, b_value, field, rounds=None):
     else:
         return True
 
+
+def find_ordinate(x_value, a_value, b_value, field):
+
+    return (x_value**3 + a_value*x_value + b_value) % field
+
+
+def find_points(a_value, b_value, field):
+
+    points_dict = defaultdict(list)
+
+    for x_value in range(field):
+        y_value = find_ordinate(x_value, a_value, b_value, field)
+        if y_value == 0:
+            points_dict[x_value].append(y_value)
+        else:
+            try:
+                roots = root_computation(y_value, field)
+                for point in roots:
+                    points_dict[x_value].append(point)
+            except TypeError:
+                pass
+
+    return points_dict
+
+
 if __name__ == "__main__":
-    print(is_curve_exist(2, 3, 13))
+    pass
+
+
