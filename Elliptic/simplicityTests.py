@@ -13,7 +13,6 @@ CARMICHAEL_NUMBERS = list([561, 1105, 1729, 2465, 2821, 6601, 8911, 10585,
                           63973, 75361])
 
 
-# Finds gcd of a pair of given numbers
 def gcd(a_value, b_value):
 
     """
@@ -34,7 +33,6 @@ def gcd(a_value, b_value):
     return a_value
 
 
-# Check whether given number is deduction or not
 def euler_criterion(a_value, field):
 
     """
@@ -56,8 +54,6 @@ def euler_criterion(a_value, field):
         return ValueError, "Something went wrong...\nGiven number is defenitely not deduction"
 
 
-# Return s_value and t_value if number is 
-# representable in (2**s_value)*t_value format
 def find_representation(value):
 
     """
@@ -79,7 +75,11 @@ def find_representation(value):
     return s_value, int(value)
 
 
-# Perform a Ferma simplicity test
+def  find_point_representation(value):
+
+    return value // 2, value % 2
+
+    
 def ferma_test(simple_value, rounds):
 
     """
@@ -128,7 +128,6 @@ def ferma_test(simple_value, rounds):
     return True
 
 
-# Perform a Nightingale-strassen simplicity test
 def nightingale_strassen_test(simple_value, rounds):
 
     """
@@ -181,7 +180,6 @@ def nightingale_strassen_test(simple_value, rounds):
     return True
 
 
-# Perform a Miller-Rabin simplicity test
 def miller_rabin_test(simple_value, rounds):
 
     """
@@ -248,12 +246,32 @@ def miller_rabin_test(simple_value, rounds):
 
 def find_quadratic_noncall(field):
 
+    """
+    Function finds a minimal quadratic non deduction of a given field.
+    Possible values: 2 .. field - 1
+
+    :param int field: an a curve field
+
+    """
+
     for deducation in range(2, field):
+        # Euler criterion says that if result value is 1 then found number is deducation
+        # In other case if result value is -1 then found number is not deducation
         if euler_criterion(deducation, field) is False:
             return deducation
 
 
 def find_minimal_deduction(t_value, m_value, field):
+
+    """
+    Function finds a minimal quadratic deduction of a given field.
+    Possible values: 2 .. field - 1
+
+    :param int t_value: an a t value in Tonelli-Shenks algorythm
+    :param int m_value: an a m value in Tonelli-Shenks algorythm that is search limit
+    :param int field: an a curve field
+
+    """
 
     for dedon in range(m_value):
         if ((t_value ** (2 ** dedon))) % field == 1:
@@ -261,6 +279,15 @@ def find_minimal_deduction(t_value, m_value, field):
 
 
 def root_computation(value, field):
+
+    """
+    Function finds a root of a given value by given field with Tonelli-Shenks algorythm
+    Possible values: 1 .. field - 1
+
+    :param int value: value from which a root is required
+    :param int field: an a curve field
+
+    """
 
     r_value = int()
     min_denon = int()
@@ -287,7 +314,6 @@ def root_computation(value, field):
             min_denon = find_minimal_deduction(t_value, m_value, field)
         b_value = (c_value ** (2 ** (m_value - min_denon - 1))) % field
         r_value = (r_value * b_value) % field
-        print(r_value)
         t_value = (t_value * b_value ** 2) % field
         c_value = (b_value ** 2) % field
         m_value = min_denon
