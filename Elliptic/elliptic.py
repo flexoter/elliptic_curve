@@ -7,7 +7,7 @@
 from collections import defaultdict
 from random import randint, seed
 from numpy import array
-from simplicityTests import ferma_test, find_point_representation, root_computation
+from Elliptic.simplicityTests import ferma_test, find_point_representation, root_computation
 
 
 def find_discriminant(a_value, b_value, field):
@@ -54,7 +54,7 @@ def is_curve_exist(a_value, b_value, field, rounds=None):
 
     # Find discriminant to ensure that a curve exist
     if find_discriminant(a_value, b_value, field) == 0:
-        return ValueError, "Given curve doesn't exist"
+        return False
     else:
         return True
 
@@ -201,5 +201,3 @@ def multiply_point(point, multiplier, field, a):
 
 if __name__ == "__main__":
     pass
-
-
