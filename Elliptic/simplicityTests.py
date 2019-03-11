@@ -299,7 +299,7 @@ def root_computation(value, field):
 
     if s_value == 1:
         r_value = value ** ((field - 1) // 4) % field
-        return tuple([r_value, -r_value])
+        return tuple([r_value, -r_value % field])
 
     z_value = find_quadratic_noncall(field)
     c_value = (z_value ** q_value) % field
