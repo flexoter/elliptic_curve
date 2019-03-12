@@ -42,6 +42,7 @@ def main():
     -> find curve points
     -> find points summ
     -> find points multiply
+    -> show plot
     -> exit
 
     """
@@ -55,7 +56,8 @@ def main():
             print("Press 1 to output dict of elliptic curve points")
             print("Press 2 to perform adding of points")
             print("Press 3 to perform multiplying of point")
-            print("Press 4 to exit of program")
+            print("Press 4 to show elliptic curve function graph")
+            print("Press 5 to exit of program")
             option = int(input("Choose the program option: "))
             print()
             if option == 1:
@@ -64,7 +66,6 @@ def main():
                 for key in points_dict:
                     print(key, points_dict[key])
                 _ = input("Tap if you want to continue program execution")
-                show_curve(a, b, field, points_dict)
                 system_cls()
             elif option == 2:
                 x, y = map(int, input("Enter first point coordinates: ").split(" "))
@@ -90,6 +91,10 @@ def main():
                 _ = input("Tap if you want to continue program execution")
                 system_cls()
             elif option == 4:
+                show_curve(a, b, field, points_dict)
+                _ = input("Tap if you want to continue program execution")
+                system_cls()
+            elif option == 5:
                 print("Exiting of program execution...Good luck!")
                 exit(33)
     
