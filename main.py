@@ -15,7 +15,7 @@ from Elliptic.simplicityTests import root_computation
 
 def system_cls():
     for _ in range(100):
-        print() 
+        print()
 
 
 def show_curve(a_value, b_value, field, point_dict):
@@ -105,12 +105,7 @@ def main():
             elif option == 3:
                 try:
                     x, y = map(int, input("Enter point coordinates: ").split(" "))
-                except ValueError:
-                    print("Please, enter correct values...\nExit of a programm")
-                    system_cls()
-                    continue
-                f_point = create_point(x, y)
-                try:
+                    f_point = create_point(x, y)
                     multiplier = int(input("Enter an multiplier: "))
                 except ValueError:
                     print("Please, enter correct values...\nExit of a programm")
