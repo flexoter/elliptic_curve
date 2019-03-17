@@ -1,9 +1,10 @@
 """
     Module contains probabilistic simplicity tests functions
-    that determine whether given value is an a simple value
+    that determine whether given value is an a simple value\n
 
 """
 
+from collections import namedtuple
 from random import randint, seed
 from numpy import array
 
@@ -16,10 +17,10 @@ CARMICHAEL_NUMBERS = list([561, 1105, 1729, 2465, 2821, 6601, 8911, 10585,
 def gcd(a_value, b_value):
 
     """
-    Function finds an gcd of a pair of given numbers.
+    Function finds an gcd of a pair of given numbers.\n
 
-    :param int a_value: first value
-    :param int n_value: second value
+    :param int a_value: first value\n
+    :param int n_value: second value\n
 
     """
 
@@ -36,30 +37,32 @@ def gcd(a_value, b_value):
 def euler_criterion(a_value, field):
 
     """
-    Function finds Euler criterion which determine whether given number is deduction on given field.
-    Possible values: True, False, ValueError
+    Function finds Euler criterion which determine whether given number
+    is deduction on given field.\n
+    Possible values: True, False, ValueError\n
 
-    :param int a_value: given number to find deduction
-    :param int field: simple value which is usually field
+    :param int a_value: given number to find deduction\n
+    :param int field: simple value which is usually field\n
 
     """
 
-    criterion = (a_value ** ((field - 1) // 2)) % field
+    criterion = int(pow(a_value, (field - 1) // 2, field))
 
     if criterion == 1:
         return True
     elif criterion - field == -1:
             return False
     else:
-        return ValueError, "Something went wrong...\nGiven number is defenitely not deduction"
+        return ValueError, "Given number is defenitely not deduction\n"
 
 
 def find_representation(value):
 
     """
-    Function finds a (2**s_value)*t_value format number representation which is required in miller_rabin_test.
+    Function finds a (2**s_value)*t_value format number representation
+    which is required in miller_rabin_test.\n
 
-    :param int value: number represestation of which is required
+    :param int value: number represestation of which is required\n
 
     """
 
@@ -75,19 +78,20 @@ def find_representation(value):
     return s_value, int(value)
 
 
-def  find_point_representation(value):
+def find_point_representation(value):
 
     return value // 2, value % 2
 
-    
+
 def ferma_test(simple_value, rounds):
 
     """
-    Function determines whether given value is a simple or not with Ferma algorythm.
-    Possible values: True, False, ValueError, "Error message"
+    Function determines whether given value is a simple or not
+    with Ferma algorythm.\n
+    Possible values: True, False, ValueError, "Error message"\n
 
-    :param int simple_value: number that will be checked on simplicity
-    :param int rounds: check iteration number
+    :param int simple_value: number that will be checked on simplicity\n
+    :param int rounds: check iteration number\n
 
     """
 
@@ -110,17 +114,13 @@ def ferma_test(simple_value, rounds):
     # Perform multiple rounds of division
     for _ in range(rounds):
         random_simple = int(1)
-        ev_test = int(2)
-        while ev_test != 1:
+        while gcd(random_simple, simple_value) != 1:
             try:
                 random_simple = randint(1, simple_value)
-                ev_test = gcd(random_simple, simple_value)
             except ValueError:
                 continue
         # Numpy array approach for performing big-integer operations
-        devinder = array([random_simple ** (simple_value - 1)], dtype='object')
-        remaider = devinder % array([simple_value])
-        if remaider != 1:
+        if int(pow(random_simple, simple_value - 1, simple_value)) != 1:
             return False
         else:
             continue
@@ -131,11 +131,12 @@ def ferma_test(simple_value, rounds):
 def nightingale_strassen_test(simple_value, rounds):
 
     """
-    Function determines whether given value is a simple or not with Nightingale-Strassen algorythm.
-    Possible values: True, False, ValueError, "Error message"
+    Function determines whether given value is a simple or not
+    with Nightingale-Strassen algorythm.\n
+    Possible values: True, False, ValueError, "Error message"\n
 
-    :param int simple_value: number that will be checked on simplicity
-    :param int rounds: check iteration number
+    :param int simple_value: number that will be checked on simplicity\n
+    :param int rounds: check iteration number\n
 
     """
 
@@ -159,13 +160,11 @@ def nightingale_strassen_test(simple_value, rounds):
     # Perform multiple rounds of division
     for _ in range(rounds):
         random_simple = int(1)
-        ev_test = int(2)
-        while ev_test != 1:
+        while gcd(random_simple, simple_value) != 1:
             # Try | except - statement in case if randint
             # function return an a value close to 2
             try:
                 random_simple = randint(1, simple_value)
-                ev_test = gcd(random_simple, simple_value)
             except ValueError:
                 continue
         devinder = array([random_simple ** ((simple_value - 1) // 2)],
@@ -183,11 +182,12 @@ def nightingale_strassen_test(simple_value, rounds):
 def miller_rabin_test(simple_value, rounds):
 
     """
-    Function determines whether given value is a simple or not with Miller-Rabin algorythm.
-    Possible values: True, False, ValueError, "Error message"
+    Function determines whether given value is a simple or not
+    with Miller-Rabin algorythm.\n
+    Possible values: True, False, ValueError, "Error message"\n
 
-    :param int simple_value: number that will be checked on simplicity
-    :param int rounds: check iteration number
+    :param int simple_value: number that will be checked on simplicity\n
+    :param int rounds: check iteration number\n
 
     """
 
@@ -224,15 +224,12 @@ def miller_rabin_test(simple_value, rounds):
                 ev_test = gcd(random_simple, simple_value)
             except ValueError:
                 continue
-        primary_check = array([random_simple ** t_value]
-                              % array([simple_value]), dtype='object')[0]
+        primary_check = int(pow(random_simple, t_value, simple_value))
         if primary_check == 1 or primary_check == -1:
             return True
         for deuce_degree in range(repeats):
-            devinder = array([random_simple **
-                             ((2 ** deuce_degree) * t_value)], dtype='object')
-            remaider = devinder % array([simple_value])
-
+            remaider = int(pow(random_simple, (2 ** deuce_degree) * t_value, 
+                               simple_value))
             # Given value is compound
             if remaider == 1:
                 return False
@@ -247,16 +244,18 @@ def miller_rabin_test(simple_value, rounds):
 def find_quadratic_noncall(field):
 
     """
-    Function finds a minimal quadratic non deduction of a given field.
-    Possible values: 2 .. field - 1
+    Function finds a minimal quadratic non deduction of a given field.\n
+    Possible values: 2 .. field - 1\n
 
     :param int field: an a curve field
 
     """
 
     for deducation in range(2, field):
-        # Euler criterion says that if result value is 1 then found number is deducation
-        # In other case if result value is -1 then found number is not deducation
+        # Euler criterion says that if result value is 1 then found number
+        # is deducation
+        # In other case if result value is -1 then found number
+        # is not deducation
         if euler_criterion(deducation, field) is False:
             return deducation
 
@@ -264,47 +263,50 @@ def find_quadratic_noncall(field):
 def find_minimal_deduction(t_value, m_value, field):
 
     """
-    Function finds a minimal quadratic deduction of a given field.
-    Possible values: 2 .. field - 1
+    Function finds a minimal quadratic deduction of a given field.\n
+    Possible values: 2 .. field - 1\n
 
-    :param int t_value: an a t value in Tonelli-Shenks algorythm
-    :param int m_value: an a m value in Tonelli-Shenks algorythm that is search limit
-    :param int field: an a curve field
+    :param int t_value: an a t value in Tonelli-Shenks algorythm\n
+    :param int m_value: an a m value in Tonelli-Shenks algorythm
+    that is search limit\n
+    :param int field: an a curve field\n
 
     """
 
-    for dedon in range(m_value):
-        if ((t_value ** (2 ** dedon))) % field == 1:
+    for dedon in range(1, m_value):
+        if int(pow(t_value, int(pow(2, dedon, field)), field)) == 1:
             return dedon
 
 
 def root_computation(value, field):
 
     """
-    Function finds a root of a given value by given field with Tonelli-Shenks algorythm
-    Possible values: 1 .. field - 1
+    Function finds a root of a given value by given field\n
+    with Tonelli-Shenks algorythm.\n Possible values:
+        1 .. field - 1\n
 
-    :param int value: value from which a root is required
+    :param int value: value from which a root is required\n
     :param int field: an a curve field
 
     """
 
     r_value = int()
     min_denon = int()
+    Point = namedtuple("Point", "x_crd y_crd")
 
     if euler_criterion(value, field) is not True:
-        return ValueError
+        return ValueError("Given value is not mutually simple with field")
 
     s_value, q_value = find_representation(field)
 
-    if s_value == 1:
-        r_value = value ** ((field - 1) // 4) % field
-        return tuple([r_value, -r_value % field])
+    if (field % 4) == 3:
+        r_value = int(pow(value, (field + 1) // 4, field))
+        return Point(r_value, -r_value % field)
 
     z_value = find_quadratic_noncall(field)
-    c_value = (z_value ** q_value) % field
-    r_value = value ** ((q_value + 1) // 2) % field
-    t_value = (value ** q_value) % field
+    c_value = int(pow(z_value, q_value, field))
+    r_value = int(pow(value, (q_value + 1) // 2, field))
+    t_value = int(pow(value, q_value, field))
     m_value = s_value
 
     while t_value != 1:
@@ -312,10 +314,15 @@ def root_computation(value, field):
             min_denon = 1
         else:
             min_denon = find_minimal_deduction(t_value, m_value, field)
-        b_value = (c_value ** (2 ** (m_value - min_denon - 1))) % field
+        b_value = int(pow(c_value, int(pow(2, m_value - min_denon - 1, field)),
+                          field))
         r_value = (r_value * b_value) % field
-        t_value = (t_value * b_value ** 2) % field
-        c_value = (b_value ** 2) % field
+        t_value = (t_value * int(pow(b_value, 2, field))) % field
+        c_value = int(pow(b_value, 2, field))
         m_value = min_denon
 
-    return tuple([r_value, -r_value % field])
+    return Point(r_value, -r_value % field)
+
+
+if __name__ == "__main__":
+    print(root_computation(2, 41))
