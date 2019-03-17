@@ -4,10 +4,20 @@
 
 """
 
-from collections import defaultdict
-from random import randint, seed
+from collections import (
+    defaultdict,
+    namedtuple
+)
 from numpy import array
-from Elliptic.simplicityTests import ferma_test, find_point_representation, root_computation
+from random import (
+    randint,
+    seed
+)
+from Elliptic.simplicityTests import (
+    ferma_test,
+    find_point_representation,
+    root_computation
+)
 
 
 def find_discriminant(a_value, b_value, field):
@@ -25,21 +35,55 @@ def find_discriminant(a_value, b_value, field):
 
     """
 
-    return (4 * (a_value ** 3) + 27 * (b_value ** 2)) % field
+    return (4 * int(pow(a_value, 3, field)) + 27 *
+            int(pow(b_value, 2, field))) % field
+
+
+def create_point(x_crd, y_crd):
+
+    """
+    Function creates a point as a namedtuple type\n
+
+    :param int x_crd: x point cooedinate\n
+    :param int y_crd: y point cooedinate\n
+
+    """
+
+    Point = namedtuple("Point", "x_crd y_crd")
+    return Point(x_crd, y_crd)
+
+
+def is_point_exist(point, a_value, b_value, field):
+
+    """
+    Function determines whether a point belongs an a elliptic curve
+    defined by the following cubic function (y^2 = x^3 + a*x + b) or not\n
+    Possible values: True, False\n
+
+    :param int a_value: x coefficient\n
+    :param int b_value: free member\n
+    :param int field: an a curve field\n
+    :param int rounds: iteration number (optional)\n
+
+    """
+
+    return (
+            (point.y_crd ** 2 - (point.x_crd ** 3 + a_value * point.x_crd + b_value)) % field == 0 and
+            0 <= point.x_crd < field and 0 <= point.y_crd < field)
 
 
 def is_curve_exist(a_value, b_value, field, rounds=None):
 
     """
-    Function determines whether an elliptic curve defined by the 
-    following cubic function (y^2 = x^3 + a*x + b) is exist:
+    Function determines whether an elliptic curve defined by the
+    following cubic function (y^2 = x^3 + a*x + b) is exist\n
     Possible values: True, ValueError, "Given field is not an a simple number",
                            ValueError, "Given curve doesn't exist"
 
-    :param int a_value: x coefficient
-    :param int b_value: free member
-    :param int field: an a curve field
-    :param int rounds: iteration number (optional)
+    :param int a_value: x coefficient\n
+    :param int b_value: free member\n
+    :param int field: an a curve field\n
+    :param int rounds: iteration number (optional)\n
 
     """
 
@@ -50,7 +94,7 @@ def is_curve_exist(a_value, b_value, field, rounds=None):
 
     # Checking if given field is a simple value
     if ferma_test(field, r) is not True:
-        return ValueError, "Given field is not an a simple number"
+        raise ValueError("Given field is not an a simple number")
 
     # Find discriminant to ensure that a curve exist
     if find_discriminant(a_value, b_value, field) == 0:
@@ -62,37 +106,38 @@ def is_curve_exist(a_value, b_value, field, rounds=None):
 def find_ordinate(x_value, a_value, b_value, field):
 
     """
-    Function finds an a point's ordinate by given x_value
-    Possible values: 0 .. field - 1
+    Function finds an a point's ordinate by given x_value\n
+    Possible values: 0 .. field - 1\n
 
 
-    :param int x_value: x coordinate
-    :param int a_value: an a value in elliptic form E(a, b)
-    :param int b_value: an b value in elliptic form E(a, b)
-    :param int field: an a curve field
+    :param int x_value: x coordinate\n
+    :param int a_value: an a value in elliptic form E(a, b)\n
+    :param int b_value: an b value in elliptic form E(a, b)\n
+    :param int field: an a curve field\n
 
     """
 
     # y_value may be found by simple substitution of x_value in the equation
-    return (x_value**3 + a_value*x_value + b_value) % field
+    return (int(pow(x_value, 3, field)) + a_value * x_value + b_value) % field
 
 
 def find_points(a_value, b_value, field):
 
     """
-    Function finds elliptic curve points that actually exist
-    by using Euler's criterion to establish whether found point 
+    Function finds elliptic curve points that actually exist\n
+    by using Euler's criterion to establish whether found point
     x coordinate is quadratic deducation and Tonelli-Shenks algorythm
-    for root computation
-    Returns an a defaultdict structure that contains points coordinates in the following form:
-    x0: [y01, (y02)]
-    x1: [y11, (y12)]
-    ................
-    x(field - 1): [y(field - 1)1, (y(field - 1)2)]
+    for root computation\n
+    Returns an a defaultdict structure that contains points coordinates
+    in the following form:\n
+    x0: [y01, (y02)]\n
+    x1: [y11, (y12)]\n
+    ................\n
+    x(field - 1): [y(field - 1)1, (y(field - 1)2)]\n
 
-    :param int a_value: an a value in elliptic form E(a, b)
-    :param int b_value: an b value in elliptic form E(a, b)
-    :param int field: an a curve field
+    :param int a_value: an a value in elliptic form E(a, b)\n
+    :param int b_value: an b value in elliptic form E(a, b)\n
+    :param int field: an a curve field\n
 
     """
 
@@ -119,83 +164,97 @@ def find_points(a_value, b_value, field):
     return points_dict
 
 
-def add_points(f_point, s_point, field, a_value=None):
+def inverse_modulo(value, field):
+    """
+    Compute an inverse for x modulo p, assuming that x
+    is not divisible by p.
+    """
+    if value % field == 0:
+        raise ZeroDivisionError("Impossible inverse")
+    return int(pow(value, field - 2, field))
+
+
+def add_points(f_point, s_point, field, a_value, b_value):
 
     """
-    Function finds a sum of a given points
-    Points is set in the tuple structure of the following form (x_coord, y_coord)
-    Returns an a tuple of the same structure
+    Function finds a sum of a given points\n
+    Points is set in the tuple structure of the following form:
+    (x_coord, y_coord)\n
+    Returns an a tuple of the same structure\n
     Possible values: tuple([rx_value, ry_value]),
                      ValueError, "Denominator can not be equal zero",
-                     ValueError (In case point at infinity)
+                     ValueError (In case point at infinity)\n
 
-    :param tuple f_point: tuple that contains coordinates of the first given point
-    :param tuple s_point: tuple that contains coordinates of the first given point
-    :param int field: an a curve field
-    :param int a_value: an a value in elliptic form E(a, b) (optinal, it is required in case summ of the same point)
+    :param tuple f_point: tuple that contains coordinates\n
+    of the first given point
+    :param tuple s_point: tuple that contains coordinates\n
+    of the second given point
+    :param int field: an a curve field\n
+    :param int a_value: an a value in elliptic form E(a, b)\n
+    (optinal, it is required in case summ of the same point)
 
     """
+
+    if not (is_point_exist(f_point, a_value, b_value, field) and is_point_exist(s_point, a_value, b_value, field)):
+        raise ValueError("Given point don't belong to elliptic curve")
 
     # Initialize coordinates of the result point
     rx_value = int()
     ry_value = int()
 
     # Find a sum of a given points
-    if f_point[0] == s_point[0] and f_point[1] == s_point[1]:
-        if f_point[1] == 0:
-            return ValueError, "Denominator can not be equal zero"
-        rx_value = ((((3 * f_point[0] ** 2 + a_value) % field) // 2 * f_point[1]) ** 2 - 2 * f_point[0]) % field
-        ry_value = (-f_point[1] + (((3 * f_point[0] ** 2 + a_value) % field) // ((2 * f_point[1]) % field)) * (f_point[0] - rx_value)) % field
+    if f_point == s_point:
+        alpha = (3 * f_point.x_crd ** 2 + a_value) * inverse_modulo(2 * f_point.y_crd, field)
     else:
-        try:
-            rx_value = ((((s_point[1] - f_point[1]) % field) // (s_point[0] - f_point[0]) % field) ** 2 - (f_point[0] + s_point[0])) % field
-            ry_value = (-f_point[1] + (((s_point[1] - f_point[1]) % field) // (s_point[0] - f_point[0]) % field) * (f_point[0] - rx_value)) % field
-        except ZeroDivisionError:
-            return ValueError
+        alpha = (s_point.y_crd - f_point.y_crd) * inverse_modulo(s_point.x_crd - f_point.x_crd, field)
+    rx_value = (alpha ** 2 - f_point.x_crd - s_point.x_crd) % field
+    ry_value = (alpha * (f_point.x_crd - rx_value) - f_point.y_crd) % field
 
-    return tuple([rx_value, ry_value])
+    return create_point(rx_value, ry_value)
 
 
-def multiply_point(point, multiplier, field, a):
+def multiply_point(point, multiplier, field, a_value, b_value):
 
     """
-    Function finds a composition of a given point on given multiplier
-    Point is set in the tuple structure of the following form (x_coord, y_coord)
-    Returns an a tuple of the same structure
+    Function finds a composition of a given point on given multiplier\n
+    Point is set in the tuple structure of the following form:\n
+    (x_coord, y_coord)\n
+    Returns an a tuple of the same structure\n
     Possible values: tuple([rx_value, ry_value]),
-                     -1, "Got an a point at infinity"
+                     -1, "Got an a point at infinity"\n
 
-    :param tuple point: tuple that contains coordinates of the given point
-    :param int multiplier: int coefficient
-    :param int field: an a curve field
-    :param int a_value: an a value in elliptic form E(a, b) (optinal, it is required in case summ of the same point)
+    :param tuple point: tuple that contains coordinates of the given point\n
+    :param int multiplier: int coefficient\n
+    :param int field: an a curve field\n
+    :param int a_value: an a value in elliptic form E(a, b)\n
+    (optinal, it is required in case summ of the same point)
 
     """
 
     # Find out how much 2P we must add further
     d_value, r_value = find_point_representation(multiplier)
     # Find 2P point
-    d_point = add_points(point, point, field, a_value=a)
+    d_point = add_points(point, point, field, a_value, b_value)
     # If multiplier is more than 2 find P + 2P
     if d_value > 1:
-        s_point = add_points(d_point, d_point, field, a_value=a)
+        s_point = add_points(d_point, d_point, field, a_value, b_value)
     else:
         # In other case if r_value is 0 then return 2P point
         if r_value == 0:
             return d_point
         else:
             # In other case return P + 2P point
-            return add_points(d_point, point, field, a_value=a)
+            return add_points(d_point, point, field, a_value, b_value)
     for _ in range(d_value):
         try:
             # Consistently add points
-            s_point = add_points(s_point, d_point, field)
+            s_point = add_points(s_point, d_point, field, a_value, b_value)
         # Try | except statement in case function finds an a point at infinity
         except TypeError:
             return -1, "Got an a point at infinity"
     if r_value != 0:
         # In other case if r_value is not 0 then return P + 2P point
-        s_point = add_points(s_point, point, field)
+        s_point = add_points(s_point, point, field, a_value, b_value)
     return s_point
 
 
