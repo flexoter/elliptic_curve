@@ -1,6 +1,7 @@
 from sys import exit
 from matplotlib import pyplot as plt
 from numpy import ogrid
+from sympy import mod_inverse
 from Elliptic.elliptic import (
     is_curve_exist,
     find_points,

@@ -8,7 +8,6 @@ from collections import (
     defaultdict,
     namedtuple
 )
-from numpy import array
 from sympy import mod_inverse
 from random import (
     randint,
