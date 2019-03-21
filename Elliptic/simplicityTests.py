@@ -113,12 +113,9 @@ def ferma_test(simple_value, rounds):
 
     # Perform multiple rounds of division
     for _ in range(rounds):
-        random_simple = int(1)
+        random_simple = int(0)
         while gcd(random_simple, simple_value) != 1:
-            try:
-                random_simple = randint(1, simple_value)
-            except ValueError:
-                continue
+            random_simple = randint(2, simple_value)
         # Numpy array approach for performing big-integer operations
         if int(pow(random_simple, simple_value - 1, simple_value)) != 1:
             return False
@@ -159,14 +156,9 @@ def nightingale_strassen_test(simple_value, rounds):
 
     # Perform multiple rounds of division
     for _ in range(rounds):
-        random_simple = int(1)
+        random_simple = int(0)
         while gcd(random_simple, simple_value) != 1:
-            # Try | except - statement in case if randint
-            # function return an a value close to 2
-            try:
-                random_simple = randint(1, simple_value)
-            except ValueError:
-                continue
+            random_simple = randint(2, simple_value)
         devinder = array([random_simple ** ((simple_value - 1) // 2)],
                          dtype='object')
         remaider = devinder % array([simple_value])
@@ -194,10 +186,8 @@ def miller_rabin_test(simple_value, rounds):
     if simple_value == 2 or simple_value == 3:
         return True
 
-    if simple_value is CARMICHAEL_NUMBERS:
+    if simple_value is CARMICHAEL_NUMBERS or simple_value == 0:
         return False
-
-    simplicity_witness = False
 
     # Seeding randint function for clear number randomizing
     seed(randint(1, 2048))
@@ -206,9 +196,8 @@ def miller_rabin_test(simple_value, rounds):
         return ValueError, "1 is neither an a simple or compound number"
 
     # Checking if given simple value is odd
-    if simple_value != 2:
-        if simple_value % 2 is 0:
-            return ValueError, "Given number is even"
+    if simple_value % 2 is 0:
+        return ValueError, "Given number is even"
 
     # Find double representation of given simple value
     repeats, t_value = find_representation(simple_value - 1)
@@ -216,14 +205,10 @@ def miller_rabin_test(simple_value, rounds):
     # Perform multiple rounds of division
     for _ in range(rounds):
 
-        random_simple = int(1)
-        ev_test = int(2)
-        while ev_test != 1:
-            try:
-                random_simple = randint(1, simple_value)
-                ev_test = gcd(random_simple, simple_value)
-            except ValueError:
-                continue
+        simplicity_witness = False
+        random_simple = int(0)
+        while gcd(random_simple, simple_value) != 1:
+            random_simple = randint(2, simple_value)
         primary_check = int(pow(random_simple, t_value, simple_value))
         if primary_check == 1 or primary_check == -1:
             return True
