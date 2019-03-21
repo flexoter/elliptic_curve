@@ -89,7 +89,7 @@ def is_curve_exist(a_value, b_value, field, rounds=7):
     """
 
     # Checking if given field is a simple value
-    if ferma_test(field, r) is not True:
+    if ferma_test(field, rounds) is not True:
         raise ValueError("Given field is not an a simple number")
 
     # Find discriminant to ensure that a curve exist
