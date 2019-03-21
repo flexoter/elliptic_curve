@@ -9,11 +9,12 @@ from collections import (
     namedtuple
 )
 from numpy import array
+from sympy import mod_inverse
 from random import (
     randint,
     seed
 )
-from Elliptic.simplicityTests import (
+from .simplicityTests import (
     ferma_test,
     find_point_representation,
     root_computation
@@ -72,7 +73,7 @@ def is_point_exist(point, a_value, b_value, field):
             0 <= point.x_crd < field and 0 <= point.y_crd < field)
 
 
-def is_curve_exist(a_value, b_value, field, rounds=None):
+def is_curve_exist(a_value, b_value, field, rounds=7):
 
     """
     Function determines whether an elliptic curve defined by the
@@ -86,11 +87,6 @@ def is_curve_exist(a_value, b_value, field, rounds=None):
     :param int rounds: iteration number (optional)\n
 
     """
-
-    # Initializing round value for simplicity test
-    r = int(7)
-    if rounds is not None:
-        r = rounds
 
     # Checking if given field is a simple value
     if ferma_test(field, r) is not True:
@@ -169,10 +165,21 @@ def inverse_modulo(value, field):
     Compute an inverse for x modulo p, assuming that x
     is not divisible by p.
     """
+    print("i_m", value)
     if value % field == 0:
         raise ZeroDivisionError("Impossible inverse")
     return int(pow(value, field - 2, field))
 
+def possible_devide(devinder, devider, field):
+
+    devinder %= field
+    devider %= field
+
+    while devinder % devider != 0:
+        devinder += field
+        devider += field
+
+    return devinder / devider
 
 def add_points(f_point, s_point, field, a_value, b_value):
 
@@ -204,9 +211,10 @@ def add_points(f_point, s_point, field, a_value, b_value):
 
     # Find a sum of a given points
     if f_point == s_point:
-        alpha = (3 * f_point.x_crd ** 2 + a_value) * inverse_modulo(2 * f_point.y_crd, field)
+        alpha = (3 * f_point.x_crd ** 2 + a_value) * mod_inverse(2 * f_point.y_crd, field)
     else:
-        alpha = (s_point.y_crd - f_point.y_crd) * inverse_modulo(s_point.x_crd - f_point.x_crd, field)
+        alpha = (s_point.y_crd - f_point.y_crd) * mod_inverse(s_point.x_crd - f_point.x_crd, field)
+    # Find a sum of a given points
     rx_value = (alpha ** 2 - f_point.x_crd - s_point.x_crd) % field
     ry_value = (alpha * (f_point.x_crd - rx_value) - f_point.y_crd) % field
 
@@ -231,30 +239,18 @@ def multiply_point(point, multiplier, field, a_value, b_value):
 
     """
 
+    s_point = add_points(point, point, field, a_value, b_value)
+    multiplier -= 2    
+
     # Find out how much 2P we must add further
-    d_value, r_value = find_point_representation(multiplier)
-    # Find 2P point
-    d_point = add_points(point, point, field, a_value, b_value)
-    # If multiplier is more than 2 find P + 2P
-    if d_value > 1:
-        s_point = add_points(d_point, d_point, field, a_value, b_value)
-    else:
-        # In other case if r_value is 0 then return 2P point
-        if r_value == 0:
-            return d_point
-        else:
-            # In other case return P + 2P point
-            return add_points(d_point, point, field, a_value, b_value)
-    for _ in range(d_value):
+    while multiplier != 0:
+        multiplier -= 1
         try:
-            # Consistently add points
-            s_point = add_points(s_point, d_point, field, a_value, b_value)
-        # Try | except statement in case function finds an a point at infinity
-        except TypeError:
-            return -1, "Got an a point at infinity"
-    if r_value != 0:
-        # In other case if r_value is not 0 then return P + 2P point
-        s_point = add_points(s_point, point, field, a_value, b_value)
+            s_point = add_points(s_point, point, field, a_value, b_value)    
+        except ZeroDivisionError:
+            # return -1, "Got an a point at infinity"
+            return s_point
+
     return s_point
 
 
