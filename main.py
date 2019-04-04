@@ -32,7 +32,7 @@ def show_curve(a_value, b_value, field, point_dict):
     """
 
     # Initialize 2D-axis for plt.show() 
-    y_axis, x_axis = ogrid[-field:field:100j, -field:field:100j]
+    y_axis, x_axis = ogrid[-field:field:4, -field:field:4]
     # Set function equal
     elliptic_func = y_axis ** 2 - x_axis ** 3 - x_axis * a_value - b_value
     show_lvl = [1]
@@ -91,7 +91,8 @@ def main():
                     x, y = map(int, input("Enter second point coordinates: ").split(" "))
                     s_point = create_point(x, y)
                 except ValueError:
-                    print("Please, enter correct values...\nExit of a programm")
+                    print("Please, enter correct values...")
+                    print("Exit of a programm")
                     system_cls()
                     continue
                 try:
