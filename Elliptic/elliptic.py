@@ -9,6 +9,7 @@ from collections import (
     namedtuple
 )
 from sympy import mod_inverse
+from math import sqrt
 from random import (
     randint,
     seed
@@ -72,7 +73,7 @@ def is_point_exist(point, a_value, b_value, field):
             0 <= point.x_crd < field and 0 <= point.y_crd < field)
 
 
-def is_curve_exist(a_value, b_value, field, rounds=7):
+def is_curve_exist(a_value, b_value, field, rounds=7, m='eq'):
 
     """
     Function determines whether an elliptic curve defined by the
@@ -88,8 +89,9 @@ def is_curve_exist(a_value, b_value, field, rounds=7):
     """
 
     # Checking if given field is a simple value
-    if ferma_test(field, rounds) is not True:
-        raise ValueError("Given field is not an a simple number")
+    if m != 'eq':
+        if ferma_test(field, rounds) is not True:
+            raise ValueError("Given field is not an a simple number")
 
     # Find discriminant to ensure that a curve exist
     if find_discriminant(a_value, b_value, field) == 0:
@@ -169,6 +171,7 @@ def inverse_modulo(value, field):
         raise ZeroDivisionError("Impossible inverse")
     return int(pow(value, field - 2, field))
 
+
 def possible_devide(devinder, devider, field):
 
     devinder %= field
@@ -179,6 +182,7 @@ def possible_devide(devinder, devider, field):
         devider += field
 
     return devinder / devider
+
 
 def add_points(f_point, s_point, field, a_value, b_value):
 
@@ -239,18 +243,93 @@ def multiply_point(point, multiplier, field, a_value, b_value):
     """
 
     s_point = add_points(point, point, field, a_value, b_value)
-    multiplier -= 2    
+    multiplier -= 2
 
     # Find out how much 2P we must add further
     while multiplier != 0:
         multiplier -= 1
         try:
             s_point = add_points(s_point, point, field, a_value, b_value)    
-        except ZeroDivisionError:
-            # return -1, "Got an a point at infinity"
-            return s_point
+        except ValueError:
+            raise ValueError("Got a point an eternity...")
 
     return s_point
+
+
+def find_point_order(point, field, a_value, b_value):
+    """
+    Function finds an order of a given point\n
+    Order in this case is max factor by multiply on which
+    we get point on eternity\n
+    Point is set in the tuple structure of the following form:\n
+    (x_coord, y_coord)\n
+    Returns an int\n
+    Possible values: int(),
+
+    :param tuple point: tuple that contains coordinates of the given point\n
+    :param int field: an a curve field\n
+    :param int a_value: an a value in elliptic form E(a, b)\n
+    :param int a_value: an b value in elliptic form E(a, b)\n
+
+    """
+    order = int(2)
+    try:
+        s_point = add_points(point, point, field, a_value, b_value)
+    except ValueError:
+        return order
+    while True:
+        try:
+            s_point = add_points(s_point, point, field, a_value, b_value)
+            order += 1
+        except ValueError:
+            return order
+
+def diffy_hellman(field, a_value, b_value, point):
+    """
+    Function performs DF-algorythm on given elliptic curve\n
+    DF-algorythm step-by-step:\n
+    1. Field and point parameteres need to be established by user
+    2. A-side generate alpha-factor in field
+    3. B-side generate beta-factor in field
+    4. A-side finds result of multiplying alpha-factor and given point and send it to B-side
+    5. B-side finds result of multiplying beta-factor and given point and send it to A-side
+    6. A-side finds common secret key by multiplying alpha-facror on gotten from B-side point
+    7. B-side finds common secret key by multiplying beta-facror on gotten from A-side point
+    8. If common secret keys are the same on both sides algorythm ends up.
+       In another case common secret key generation will require to repeat DF-algorythm
+    Point is set in the tuple structure of the following form:\n
+    (x_coord, y_coord)\n
+    Returns a common secret key in a Point form\n
+    Possible values: tuple([key_x, key_y]),
+                    ValueError("Got a point an eternity...")
+
+    :param tuple point: tuple that contains coordinates of the given point\n
+    :param int field: an a curve field\n
+    :param int a_value: an a value in elliptic form E(a, b)\n
+    :param int a_value: an b value in elliptic form E(a, b)\n
+
+    """
+    a_comb, b_comb = int(), int()
+    while a_comb == b_comb:
+        a_comb = randint(1, sqrt(field) // 2)
+        b_comb = randint(1, sqrt(field) // 2)
+    print("Next factors have been generated:")
+    print("alhpha: ", a_comb)
+    print("beta: ", b_comb)
+    try:
+        a_point = multiply_point(point, a_comb, field, a_value, b_value)
+        b_point = multiply_point(point, b_comb, field, a_value, b_value)
+        a_secret = multiply_point(b_point, a_comb, field, a_value, b_value)
+        b_secret = multiply_point(a_point, b_comb, field, a_value, b_value)
+    except ValueError:
+        print("Got a point an eternity... Please, repeat DF-algorythm")
+        return
+    if a_secret != b_secret:
+        print("Something has terribly gone wrong...")
+        return
+    else:
+        print("Common secret key has been succesfully generated")
+        return a_secret
 
 
 if __name__ == "__main__":
