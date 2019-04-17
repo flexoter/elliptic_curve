@@ -9,7 +9,8 @@ from Elliptic.elliptic import (
     multiply_point,
     find_ordinate,
     create_point,
-    is_point_exist
+    is_point_exist,
+    diffy_hellman
 )
 from Elliptic.simplicityTests import root_computation
 
@@ -66,11 +67,12 @@ def main():
         print("Curve is actually exist")
         print()
         while True:
-            print("Press 1 to output dict of elliptic curve points")
+            print("\n\n\nPress 1 to output dict of elliptic curve points")
             print("Press 2 to perform adding of points")
             print("Press 3 to perform multiplying of point")
             print("Press 4 to show elliptic curve function graph")
-            print("Press 5 to exit of program")
+            print("Press 5 to perform diffy-hellman protocol")
+            print("Press 6 to exit of program")
             try:
                 option = int(input("Choose the program option: "))
             except ValueError:
@@ -127,6 +129,10 @@ def main():
                 _ = input("Tap if you want to continue program execution")
                 system_cls()
             elif option == 5:
+                x, y = map(int, input("Enter existing elliptic point coordinates: ").split(" "))
+                point = create_point(x, y)
+                print(diffy_hellman(field, a, b, point))
+            elif option == 6:
                 print("Exiting of program execution...Good luck!")
                 exit(33)
 
