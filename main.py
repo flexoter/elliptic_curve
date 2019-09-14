@@ -1,3 +1,8 @@
+"""
+    Main module is supposed to run the Elliptic programm 
+
+"""
+
 from sys import exit
 from matplotlib import pyplot as plt
 from numpy import ogrid
@@ -15,8 +20,17 @@ from Elliptic.elliptic import (
 from Elliptic.simplicityTests import root_computation
 
 
-def system_cls():
-    for _ in range(100):
+def system_cls(idention=100):
+    """
+    
+    Function moves the cursor for a number of characters specified by\n
+    given "indention" parameter\n
+
+    :param int idention: an a value of indention\n
+
+    """
+
+    for _ in range(idention):
         print()
 
 
@@ -85,7 +99,7 @@ def main():
                 for key in points_dict:
                     print(key, points_dict[key])
                 _ = input("Tap if you want to continue program execution")
-                system_cls()
+                system_cls(150)
             elif option == 2:
                 try:
                     x, y = map(int, input("Enter first point coordinates: ").split(" "))
@@ -95,17 +109,17 @@ def main():
                 except ValueError:
                     print("Please, enter correct values...")
                     print("Exit of a programm")
-                    system_cls()
+                    system_cls(150)
                     continue
                 try:
                     r_point = add_points(f_point, s_point, field, a, b)
                 except ValueError:
                     print("Given point doesn't belong to elliptic curve")
-                    system_cls()
+                    system_cls(150)
                     continue
                 print("Result point: ", r_point)
                 _ = input("Tap if you want to continue program execution")
-                system_cls()
+                system_cls(150)
             elif option == 3:
                 try:
                     x, y = map(int, input("Enter point coordinates: ").split(" "))
@@ -113,21 +127,21 @@ def main():
                     multiplier = int(input("Enter an multiplier: "))
                 except ValueError:
                     print("Please, enter correct values...\nExit of a programm")
-                    system_cls()
+                    system_cls(150)
                     continue
                 try:
                     r_point = multiply_point(f_point, multiplier, field, a, b)
                 except ValueError:
                     print("Given point doesn't belong to elliptic curve")
-                    system_cls()
+                    system_cls(150)
                     continue
                 print("Result point: ", r_point)
                 _ = input("Tap if you want to continue program execution")
-                system_cls()
+                system_cls(150)
             elif option == 4:
                 show_curve(a, b, field, points_dict)
                 _ = input("Tap if you want to continue program execution")
-                system_cls()
+                system_cls(150)
             elif option == 5:
                 x, y = map(int, input("Enter existing elliptic point coordinates: ").split(" "))
                 point = create_point(x, y)

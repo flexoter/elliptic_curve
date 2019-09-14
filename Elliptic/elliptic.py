@@ -1,3 +1,5 @@
+#!/usr/bin/sudo python
+# -*- coding: utf-8 -*-
 """
     Module contains probabilistic functions
     that could be usefull in elliptic cryptography

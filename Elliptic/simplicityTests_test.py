@@ -1,3 +1,8 @@
+"""
+    Module contains unit tests for simplicityTests module
+
+"""
+
 import unittest
 import simplicityTests
 
