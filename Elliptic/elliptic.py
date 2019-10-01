@@ -71,7 +71,9 @@ def is_point_exist(point, a_value, b_value, field):
     """
 
     return (
-            (point.y_crd ** 2 - (point.x_crd ** 3 + a_value * point.x_crd + b_value)) % field == 0 and
+            (point.y_crd ** 2 -
+                (point.x_crd ** 3 + a_value *
+                    point.x_crd + b_value)) % field == 0 and
             0 <= point.x_crd < field and 0 <= point.y_crd < field)
 
 
@@ -207,7 +209,8 @@ def add_points(f_point, s_point, field, a_value, b_value):
 
     """
 
-    if not (is_point_exist(f_point, a_value, b_value, field) and is_point_exist(s_point, a_value, b_value, field)):
+    if not (is_point_exist(f_point, a_value, b_value, field) and
+            is_point_exist(s_point, a_value, b_value, field)):
         raise ValueError("Given point don't belong to elliptic curve")
 
     # Initialize coordinates of the result point
@@ -216,9 +219,11 @@ def add_points(f_point, s_point, field, a_value, b_value):
 
     # Find a sum of a given points
     if f_point == s_point:
-        alpha = (3 * f_point.x_crd ** 2 + a_value) * mod_inverse(2 * f_point.y_crd, field)
+        alpha = (3 * f_point.x_crd ** 2 + a_value) *
+        mod_inverse(2 * f_point.y_crd, field)
     else:
-        alpha = (s_point.y_crd - f_point.y_crd) * mod_inverse(s_point.x_crd - f_point.x_crd, field)
+        alpha = (s_point.y_crd - f_point.y_crd) *
+        mod_inverse(s_point.x_crd - f_point.x_crd, field)
     # Find a sum of a given points
     rx_value = (alpha ** 2 - f_point.x_crd - s_point.x_crd) % field
     ry_value = (alpha * (f_point.x_crd - rx_value) - f_point.y_crd) % field
@@ -286,6 +291,7 @@ def find_point_order(point, field, a_value, b_value):
         except ValueError:
             return order
 
+
 def diffy_hellman(field, a_value, b_value, point):
     """
     Function performs DF-algorythm on given elliptic curve\n
@@ -293,12 +299,17 @@ def diffy_hellman(field, a_value, b_value, point):
     1. Field and point parameteres need to be established by user
     2. A-side generate alpha-factor in field
     3. B-side generate beta-factor in field
-    4. A-side finds result of multiplying alpha-factor and given point and send it to B-side
-    5. B-side finds result of multiplying beta-factor and given point and send it to A-side
-    6. A-side finds common secret key by multiplying alpha-facror on gotten from B-side point
-    7. B-side finds common secret key by multiplying beta-facror on gotten from A-side point
+    4. A-side finds result of multiplying alpha-factor and given point and
+    send it to B-side
+    5. B-side finds result of multiplying beta-factor and given point and send
+    it to A-side
+    6. A-side finds common secret key by multiplying alpha-facror on gotten
+    from B-side point
+    7. B-side finds common secret key by multiplying beta-facror on gotten
+    from A-side point
     8. If common secret keys are the same on both sides algorythm ends up.
-       In another case common secret key generation will require to repeat DF-algorythm
+       In another case common secret key generation will require to repeat
+       DF-algorythm
     Point is set in the tuple structure of the following form:\n
     (x_coord, y_coord)\n
     Returns a common secret key in a Point form\n
